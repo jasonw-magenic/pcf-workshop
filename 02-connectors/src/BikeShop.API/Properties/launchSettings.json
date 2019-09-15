@@ -4,8 +4,8 @@
     "windowsAuthentication": false, 
     "anonymousAuthentication": true, 
     "iisExpress": {
-      "applicationUrl": "http://localhost:49776",
-      "sslPort": 44364
+      "applicationUrl": "http://localhost:65217",
+      "sslPort": 44351
     }
   },
   "profiles": {
@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "BikeShopAPI": {
+    "BikeShop.API": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "api/values",
