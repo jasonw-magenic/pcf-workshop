@@ -30,7 +30,7 @@ namespace BikeShop.API
         {
             Configuration = configuration;
 
-            // Not requireed, but may be helpful for deubgging connection issues
+            // For debugging config/connection issues
             //var info = configuration.GetRequiredServiceInfo<MySqlServiceInfo>("mysql");
         }
 
