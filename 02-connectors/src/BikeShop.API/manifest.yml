@@ -1,0 +1,11 @@
+---
+applications:
+- name: BikeShop-API-JW
+  buildpacks:
+   - https://github.com/cloudfoundry/dotnet-core-buildpack
+  memory: 128m
+  disk_quota: 256m
+  random-route: true
+  timeout: 180
+  services:
+   - mysql

@@ -23,7 +23,8 @@
       "launchUrl": "api/values",
       "applicationUrl": "https://localhost:5001;http://localhost:5000",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "VCAP_SERVICES": "{ \"cleardb\": [{ \"label\": \"cleardb\", \"provider\": null, \"plan\": \"spark\", \"name\": \"mysql\", \"tags\": [ \"Data Stores\", \"Cloud Databases\" ], \"instance_name\": \"mysql\", \"binding_name\": null, \"credentials\": { \"jdbcUrl\": \"jdbc:mysql://us-cdbr-iron-east-02.cleardb.net/ad_f09f96af46c3f30?user=bc388da5817978&password=ade72c3f\", \"uri\": \"mysql://bc388da5817978:ade72c3f@us-cdbr-iron-east-02.cleardb.net:3306/ad_f09f96af46c3f30?reconnect=true\", \"name\": \"ad_f09f96af46c3f30\", \"hostname\": \"us-cdbr-iron-east-02.cleardb.net\", \"port\": \"3306\", \"username\": \"bc388da5817978\", \"password\": \"ade72c3f\" }, \"syslog_drain_url\": null, \"volume_mounts\": [] }] }"
       }
     }
   }

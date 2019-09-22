@@ -18,6 +18,10 @@ using BikeShop.API.Data;
 using Steeltoe.CloudFoundry.Connector.MySql;
 using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 
+//<debug only>
+using Steeltoe.CloudFoundry.Connector;
+using Steeltoe.CloudFoundry.Connector.Services;
+
 namespace BikeShop.API
 {
     public class Startup
@@ -25,6 +29,9 @@ namespace BikeShop.API
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            // Not requireed, but may be helpful for deubgging connection issues
+            //var info = configuration.GetRequiredServiceInfo<MySqlServiceInfo>("mysql");
         }
 
         public IConfiguration Configuration { get; }
@@ -38,11 +45,11 @@ namespace BikeShop.API
             services.AddMySqlConnection(Configuration);
             services.AddTransient<BicycleService>();
             services.AddTransient<BicycleRepository>();
-            services.AddDbContext<BicycleDbContext>(o => o.UseMySql(Configuration));
+            services.AddDbContext<BicycleDbContext>(o => o.UseMySql(Configuration, "mysql"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider sp)
         {
             if (env.IsDevelopment())
             {
@@ -58,7 +65,12 @@ namespace BikeShop.API
             app.UseMvc();
 
             // next line added in lab #2
-            BicycleDbInitialize.init(app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider);
+            //BicycleDbInitialize.init(app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider);
+
+            using(var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                BicycleDbInitialize.init(scope.ServiceProvider);
+            }
         }
     }
 }
