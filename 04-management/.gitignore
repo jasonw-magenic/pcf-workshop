@@ -15,5 +15,5 @@
 # End of https://www.gitignore.io/api/visualstudiocode
 
 ### Additional Files & Folders ###
-**/bin/**
-**/obj/**
+**/[Bb]in/
+**/[Oo]bj/
