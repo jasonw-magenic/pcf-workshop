@@ -15,5 +15,5 @@
 # End of https://www.gitignore.io/api/visualstudiocode
 
 #src/BikeShopAPI/obj/Debug/netcoreapp2.2/BikeShopAPI.assets.cache
-**/bin/*
-**/obj/*
+**/bin/**
+**/obj/**
