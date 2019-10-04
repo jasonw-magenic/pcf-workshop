@@ -1,29 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Steeltoe.CloudFoundry.Connector.MySql;
 using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
-using Steeltoe.Extensions.Configuration.ConfigServer;
 using BikeShop.API.Data;
 using BikeShop.API.Models;
 using BikeShop.API.Repositories;
 using BikeShop.API.Services;
 
 //next 4 lines added in lab #4
+using Microsoft.OpenApi.Models;
+using Steeltoe.Common.HealthChecks;
 using Steeltoe.Management.CloudFoundry;
 using Steeltoe.Management.Endpoint.Info;
-using Steeltoe.Common.HealthChecks;
 using BikeShop.API.Contributors;
-
 
 namespace BikeShop.API
 {
@@ -54,13 +47,15 @@ namespace BikeShop.API
             // }
             services.Configure<HeaderMessageConfiguration>(Configuration.GetSection("headerMessage"));
 
-            //next 3 lines added in lab #4
+            //next 8 lines added in lab #4
             services.AddCloudFoundryActuators(Configuration);
             services.AddScoped<IHealthContributor, BicycleContributor>();
             services.AddSingleton<IHealthContributor, DemoContributor>();
-            // and these 2 as well
             services.AddSingleton<IInfoContributor, BicycleInfoContributor>();
             services.AddSingleton<IOperationCounter<Bicycle>, OperationCounter<Bicycle>>();
+            services.AddSwaggerGen(c => {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "BikeShop API", Version = "v1" });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -79,13 +74,18 @@ namespace BikeShop.API
             app.UseHttpsRedirection();
             app.UseMvc();
 
-            //next line added in lab #4
-             app.UseCloudFoundryActuators();
+            //next 5 lines added in lab #4
+            app.UseCloudFoundryActuators();
+            app.UseSwagger();
+            app.UseSwaggerUI(c => {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "BikeShop.API v1");
+            });
 
-            BicycleDbInitialize.init(app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider);
-
-            var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
-            BicycleDbInitialize.init(scope.ServiceProvider);
+            // BicycleDbInitialize.init(app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider);
+            using(var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                BicycleDbInitialize.init(scope.ServiceProvider);
+            }
         }
     }
 }

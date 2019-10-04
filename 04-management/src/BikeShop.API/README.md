@@ -1047,36 +1047,61 @@ namespace BikeShop.API
 
 ### Add and configure Swashbuckle
 
-Add the following Nuget packages:
+NOTE: Consider checking for the latest guidance e.g. if you are reading this after the SpringOne session:
+ * https://github.com/domaindrivendev/Swashbuckle.AspNetCore.
+ * https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-2.2&tabs=visual-studio
+
+Add the following Nuget package via the CLI:
 
 ```bash
-dotnet add package Swashbuckle.AspNetCore
-dotnet add package Swashbuckle.AspNetCore.Swagger
+dotnet add package Swashbuckle.AspNetCore -v 5.0.0-rc4
+#dotnet add package Swashbuckle.AspNetCore.Swagger
 ```
 
-Update the `ConfigureServices` method in the `Startup.cs` file:
+Or add the following line to your .csproj file
+
+```xml
+  <ItemGroup>
+    <!-- All the other package references -->
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc4" />
+  </ItemGroup>
+```
+
+Followed by a restore via the CLI from the project directory (04-management/src/BikeShop.API)
+
+```bash
+dotnet restore
+```
+
+Next, we'll update the `Startup.cs` file.
+
+Add (via using directive) the 'Microsoft.OpenApi.Models' namespace.
 
 ```c#
+using Microsoft.OpenApi.Models;
+```
+
+Then, update the `ConfigureServices` method.
+
+```c#
+// add the following after .AddMvc();
 services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "BikeShop API", Version = "v1" });
 });
 ```
 
-Update the `Configure` method in the `Startup.cs` file:
+Then, update the `Configure` method.
 
 ```c#
+//insert middleware to expose the generated Swagger as JSON endpoint(s)
 app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+//insert the swagger-ui middleware if you want to expose interactive documentation,
+//specifying the Swagger JSON endpoint(s) to power it from
+//NOTE: This is optional.
+app.UseSwaggerUI(c => {
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "BikeShop.API v1");
 });
-```
-
-Update the using declartion in `Startup.cs`:
-
-```c#
-using Swashbuckle.AspNetCore.Swagger;
 ```
 
 <details>
