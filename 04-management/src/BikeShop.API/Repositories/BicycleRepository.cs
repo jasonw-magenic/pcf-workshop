@@ -31,6 +31,19 @@ namespace BikeShop.API.Repositories
             _bicycleDbContext.Add(bicycle);
             return await _bicycleDbContext.SaveChangesAsync();
         }
+
+        public async Task<int> UpdateBicycle(Bicycle bicycle)
+        {
+            _bicycleDbContext.Update(bicycle);
+            return await _bicycleDbContext.SaveChangesAsync();
+        }
+
+        public async Task<int> DeleteBicycle(long id)
+        {
+            var bicycle = await _bicycleDbContext.FindAsync<Bicycle>(id);
+            _bicycleDbContext.Remove(bicycle);
+            return await _bicycleDbContext.SaveChangesAsync();
+        }
     }
 
 }

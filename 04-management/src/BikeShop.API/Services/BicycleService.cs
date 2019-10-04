@@ -28,5 +28,15 @@ namespace BikeShop.API.Services
         {
             return await _bicycleRepository.AddBicycle(bicycle);
         }
+
+        public async Task<int> UpdateBicycle(Bicycle bicycle)
+        {
+            return await _bicycleRepository.UpdateBicycle(bicycle);
+        }
+
+        public async Task<int> DeleteBicycle(long id)
+        {
+            return await _bicycleRepository.DeleteBicycle(id);
+        }
     }
 }

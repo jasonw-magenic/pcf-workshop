@@ -13,6 +13,7 @@
     <PackageReference Include="Steeltoe.CloudFoundry.Connector" Version="1.1.0" />
     <PackageReference Include="Steeltoe.CloudFoundry.Connector.MySql" Version="1.1.0" />
     <PackageReference Include="Steeltoe.Extensions.Configuration.ConfigServerCore" Version="2.3.0" />
+    <PackageReference Include="Steeltoe.Management.CloudFoundryCore" Version="2.3.0" />
   </ItemGroup>
 
 </Project>

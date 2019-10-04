@@ -524,9 +524,46 @@ namespace BikeShop.API.Contributors
 
 ---
 
-### Update the Startup with the Health Contributor
+### Add a demo Health Contributor
 
-Update the using declartion in `Startup.cs`:
+In the `Contributors` folder create another file called `DemoContributor.cs` and copy the
+following code into it.
+
+```c#
+using System;
+using Steeltoe.Common.HealthChecks;
+
+namespace BikeShop.API.Contributors
+{
+    public class DemoContributor : IHealthContributor
+    {
+        public DemoContributor() { }
+
+        public HealthCheckResult Health()
+        {
+            var health = new HealthCheckResult();
+            try
+            {
+                //toggle status between UP and WARNING every minute
+                var inGoodShape = (DateTime.UtcNow.Minute % 2) == 0;
+                health.Status = inGoodShape ? HealthStatus.UP : HealthStatus.WARNING;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                health.Status = HealthStatus.DOWN;
+            }
+            health.Details.Add("status", health.Status.ToString());
+            return health;
+        }
+
+        public string Id { get; } = "Demo";
+    }
+}
+```
+
+
+Update the using declaration in `Startup.cs`:
 
 ```c#
 using Steeltoe.Common.HealthChecks;
@@ -536,7 +573,8 @@ using BikeShop.API.Contributors;
 Add the following to the `ConfigureServices` method in `Startup.cs`:
 
 ```c#
-services.AddSingleton<IHealthContributor, BicycleContributor>();
+services.AddScoped<IHealthContributor, BicycleContributor>();
+services.AddSingleton<IHealthContributor, DemoContributor>();
 ```
 
 ---
@@ -876,7 +914,7 @@ builder.WithInfo(
 ```
 
 <details>
-<summary>BicycleContributor.cs</summary>
+<summary>BicycleInfoContributor.cs</summary>
 
 ```c#
 using BikeShop.API.Models;

@@ -15,6 +15,9 @@ using Steeltoe.Extensions.Configuration;
 // above line commented out, next line added in lab #3
 using Steeltoe.Extensions.Configuration.ConfigServer;
 
+// next line added in ab #4
+using Steeltoe.Extensions.Logging;
+
 
 namespace BikeShop.API
 {
@@ -53,7 +56,9 @@ namespace BikeShop.API
                 })
                 .ConfigureLogging((context, builder) =>
                 {
-                    builder.AddConfiguration(context.Configuration.GetSection("Logging"));
+                    builder.AddConfiguration(context.Configuration.GetSection("Logging"))
+                        .AddDynamicConsole()
+                        .AddDebug();
                 });
     }
 }

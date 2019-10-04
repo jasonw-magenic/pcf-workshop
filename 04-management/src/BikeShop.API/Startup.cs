@@ -10,21 +10,20 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
-// next 5 lines added in lab #2
-using BikeShop.API.Services;
-using BikeShop.API.Repositories;
-using BikeShop.API.Data;
 using Steeltoe.CloudFoundry.Connector.MySql;
 using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
-
-//next 2 lines added in lab #3
 using Steeltoe.Extensions.Configuration.ConfigServer;
+using BikeShop.API.Data;
 using BikeShop.API.Models;
+using BikeShop.API.Repositories;
+using BikeShop.API.Services;
 
-//<debug only>
-using Steeltoe.CloudFoundry.Connector;
-using Steeltoe.CloudFoundry.Connector.Services;
+//next 4 lines added in lab #4
+using Steeltoe.Management.CloudFoundry;
+using Steeltoe.Management.Endpoint.Info;
+using Steeltoe.Common.HealthChecks;
+using BikeShop.API.Contributors;
+
 
 namespace BikeShop.API
 {
@@ -33,9 +32,6 @@ namespace BikeShop.API
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-
-            // Not requireed, but may be helpful for deubgging connection issues
-            //var info = configuration.GetRequiredServiceInfo<MySqlServiceInfo>("mysql");
         }
 
         public IConfiguration Configuration { get; }
@@ -44,14 +40,10 @@ namespace BikeShop.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
-            // next 4 lines added in lab #2
             services.AddMySqlConnection(Configuration);
             services.AddTransient<BicycleService>();
             services.AddTransient<BicycleRepository>();
             services.AddDbContext<BicycleDbContext>(o => o.UseMySql(Configuration, "mysql"));
-
-            //next 2 lines add in lab #3
             services.AddOptions();
             // services.ConfigureConfigServerClientOptions(Configuration);
 
@@ -61,6 +53,14 @@ namespace BikeShop.API
             //     Console.WriteLine("No 'headerMessage' section in configuration!");
             // }
             services.Configure<HeaderMessageConfiguration>(Configuration.GetSection("headerMessage"));
+
+            //next 3 lines added in lab #4
+            services.AddCloudFoundryActuators(Configuration);
+            services.AddScoped<IHealthContributor, BicycleContributor>();
+            services.AddSingleton<IHealthContributor, DemoContributor>();
+            // and these 2 as well
+            services.AddSingleton<IInfoContributor, BicycleInfoContributor>();
+            services.AddSingleton<IOperationCounter<Bicycle>, OperationCounter<Bicycle>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -75,19 +75,17 @@ namespace BikeShop.API
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            //next line added in lab #3
             app.UseStaticFiles();
-
             app.UseHttpsRedirection();
             app.UseMvc();
 
-            // next line added in lab #2
-            //BicycleDbInitialize.init(app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider);
+            //next line added in lab #4
+             app.UseCloudFoundryActuators();
 
-            using(var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                BicycleDbInitialize.init(scope.ServiceProvider);
-            }
+            BicycleDbInitialize.init(app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider);
+
+            var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+            BicycleDbInitialize.init(scope.ServiceProvider);
         }
     }
 }
