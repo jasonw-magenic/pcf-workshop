@@ -1,55 +1,54 @@
-# Connectors
+# Lab #2 - Connectors
+In this second lab we will hook our app up to a MySQL instance and serve some
+data-driven content. We will get this running locally, and then we will do the
+same in PCF.
 
 ## Continuing from Setup
+If you haven't completed the steps from the first lab you can catch up by
+copying the src directory (found at ~/01-setup/src) on top of your working
+src directory (found at ~/BikeShop/src).
 
-### Open BikeShop
+NOTE: Do NOT copy the ~/01-setup/.vscode directory in the same fashion.
+It is configured for opening the 01-Setup directory from VS Code via open 
+directory and the paths will be incorrect if copied into your working
+directory.
 
-1. Open the solution folder `~/Workspace/BikeShop` in Visual Studio Code.
+### 1. Open the top-level repo directory in VS Code
+If you're continuing from lab #1, it's already open.
 
-2. Open a terminal and change directories.
+### 2. Open a terminal in the same directory
+NOTE: If you're continuing from lab #1, you're likely already here.
 
+In CMD (Windows)
 ```bash
-cd ~/Workspace/BikeShop/
+cd BikeShop
 ```
 
----
+In Bash (Linux)
+```bash
+cd ./BikeShop
+```
 
-### Add packages from Nuget
+## Add project references
 
-1. Entity Framework
+### 3. Add NuGet Packages
+Add NuGet package references for:
+  - Entity Framework
+  - Pomelo (MySql for EF Core)
+  - Steeltoe CloudFoundry Connector
+  - Steeltoe CloudFoundry Connector for MySql
 
+Via the terminal:
 ```bash
 dotnet add src/BikeShop.API package Microsoft.EntityFrameworkCore
-```
-
-2. Pomelo
-
-```bash
 dotnet add src/BikeShop.API package Pomelo.EntityFrameworkCore.MySql
-```
-
-3. Steeltoe CloudFoundry Connector
-
-```bash
 dotnet add src/BikeShop.API package Steeltoe.CloudFoundry.Connector
-```
-
-4. Steeltoe CloudFoundry Connector MySql
-
-```bash
 dotnet add src/BikeShop.API package Steeltoe.CloudFoundry.Connector.MySql
-```
-
-5. Restore all packages
-
-```bash
 dotnet restore
 ```
 
-These references may also be added "manually."
-
-1. Copy and paste the 4 refeneces directly into the BikeShop.API.csproj file, as shown below.
-
+Or add these references "manually." Copy and paste the 4 refeneces below
+directly into the project file (found at ~/BikeShop/src/BikeShop.API/BikeShop.API.csproj).
 ```xml
 <ItemGroup>
     <!-- Existing PackageReference elements here -->
@@ -60,35 +59,22 @@ These references may also be added "manually."
 </ItemGroup>
 ```
 
-2. Restore all packages
+## Add a model
 
-```bash
-dotnet restore
-```
-
-## Add Models
-
-1. Create a `Models` directory.
-
-In CMD
-
+### 4. Create a `Models` directory
+In CMD (Windows)
 ```cmd
 mkdir src\BikeShop.API\Models
 ```
 
-In Bash
-
+In Bash (Linux)
 ```bash
 mkdir -p ./src/BikeShop.API/Models
 ```
 
-2. Create a `Bicycle.cs` file in the `/src/BikeShop.API/Models` directory.
-
-3. Add the following properties to `Bicycle.cs` file.
-
-<details>
-
-<summary>Bicycle.cs</summary>
+### 5. Add a model class
+Create a `Bicycle.cs` file in the new `Models` directory. Add the
+following contents to the `Bicycle.cs` file.
 
 ```c#
 using System.ComponentModel.DataAnnotations;
@@ -114,14 +100,9 @@ namespace BikeShop.API.Models
 }
 ```
 
-</details>
+## Add the EF Core database context
 
----
-
-## Add Database Context
-
-1. Create the `Data` directory.
-
+### 6. Create a `Data` directory
 In CMD
 
 ```cmd
@@ -134,17 +115,13 @@ In Bash
 mkdir -p ./src/BikeShop.API/Data
 ```
 
-2. Create a `BicycleDbContext.cs` file in the `/src/BikeShop.API/Data` directory.
-
-3. Add the following to the `BicycleDbContext.cs` file.
-
-<details>
-
-<summary>BicycleDbContext.cs</summary>
+### 7. Add the EF Core database context class
+Create a `BicycleDbContext.cs` file in the new `Data` directory. Add the
+following contents to the `BicycleDbContext.cs` file.
 
 ```c#
-using BikeShop.API.Models;
 using Microsoft.EntityFrameworkCore;
+using BikeShop.API.Models;
 
 namespace BikeShop.API.Data
 {
@@ -154,7 +131,6 @@ namespace BikeShop.API.Data
 
         public BicycleDbContext(DbContextOptions<BicycleDbContext> dbContextOptions) : base(dbContextOptions)
         {
-            
         }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -174,40 +150,29 @@ namespace BikeShop.API.Data
 }
 ```
 
-</details>
+## Add a repository
 
----
-
-## Add Bicycle Repository
-
-1. Create the `Repositories` directory.
-
+### 8. Create a `Repositories` directory
 In CMD
-
 ```cmd
 mkdir src\BikeShop.API\Repositories
 ```
 
 In Bash
-
 ```bash
 mkdir -p ./src/BikeShop.API/Repositories
 ```
 
-2. Create a `BicycleRepository.cs` file in the `/src/BikeShop.API/Repositories` directory.
-
-3. Add the following to the `BicycleRepository.cs` file.
-
-<details>
-
-<summary>BicycleRepository.cs</summary>
+### 9. Add a repository class
+Create a `BicycleRepository.cs` file in the new `Repositories` directory. Add the
+following contents to the `BicycleRepository.cs` file.
 
 ```c#
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using BikeShop.API.Data;
 using BikeShop.API.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace BikeShop.API.Repositories
 {
@@ -241,33 +206,22 @@ namespace BikeShop.API.Repositories
 }
 ```
 
-</details>
+## Add a service
 
----
-
-## Add Bicycle Service
-
-1. Create the `Services` directory.
-
+### 10. Create a `Services` directory
 In CMD
-
 ```cmd
 mkdir src\BikeShop.API\Services
 ```
 
 In Bash
-
 ```bash
 mkdir -p ./src/BikeShop.API/Services
 ```
 
-2. Create a `BicycleService.cs` file in the `/src/BikeShop.API/Services` directory.
-
-3. Add the following to the `BicycleService.cs` file.
-
-<details>
-
-<summary>BicycleService.cs</summary>
+### 11. Add the Bicycle service class
+Create a `BicycleService.cs` file in the new `Services` directory. Add the
+following contents to the `BicycleService.cs` file.
 
 ```c#
 using System.Collections.Generic;
@@ -304,22 +258,14 @@ namespace BikeShop.API.Services
 }
 ```
 
-</details>
+## Add a Controller
 
----
+### 12. Add the BicycleController class
 
-## Add Bicycle Controller
-
-1. Create a `BicycleController.cs` file in the `/src/BikeShop.API/Controllers` directory.
-
-2. Add the following to the `BicycleController.cs` file.
-
-<details>
-
-<summary>BicycleController.cs</summary>
+Create a `BicycleController.cs` file in the (existing) `/src/BikeShop.API/Controllers`
+directory.  Add the following contents to the `BicycleController.cs` file.
 
 ```c#
-
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BikeShop.API.Models;
@@ -360,19 +306,11 @@ namespace BikeShop.API.Controllers
 }
 ```
 
-</details>
+## Add a database initializer
 
----
-
-## Add Bicycle Database Initializer
-
-1. Create a `BicycleDbInitialize.cs` file in the `/src/BikeShop.API/Data` directory.
-
-2. Add the following to the `BicycleDbInitialize.cs` file.
-
-<details>
-
-<summary>BicycleDbInitialize.cs</summary>
+### 13. Add the BicycleDbInitialize class
+Create a `BicycleDbInitialize.cs` file in the (existing) `/src/BikeShop.API/Data`
+directory.  Add the following contents to the `BicycleDbInitialize.cs` file.
 
 ```c#
 using System;
@@ -413,16 +351,10 @@ namespace BikeShop.API.Data
 }
 ```
 
-</details>
+## Update the `Startup` class
+Make the following changes in the `~/BikeShop/src/BikeShop-API/Startup.cs` file.
 
----
-
-## Update Startup
-
-Edit the `Startup.cs` file.
-
-Add the following using directives:
-
+### 14. Add using directives
 ```c#
 using BikeShop.API.Data;
 using BikeShop.API.Repositories;
@@ -431,21 +363,26 @@ using Steeltoe.CloudFoundry.Connector.MySql;
 using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 ```
 
+
+### 15. Update `ConfigureServices`
 In the `ConfigureServices` method add the following:
 
 ```c#
 services.AddMySqlConnection(Configuration);
 services.AddTransient<BicycleService>();
 services.AddTransient<BicycleRepository>();
-services.AddDbContext<BicycleDbContext>(o => o.UseMySql(Configuration));
+services.AddDbContext<BicycleDbContext>(o => o.UseMySql(Configuration));          //local
+//services.AddDbContext<BicycleDbContext>(o => o.UseMySql(Configuration, "mysql")); //deployed
 ```
 
+### 16. Update `Configure`
 In the `Configure` method add the following:
 
 ```c#
 BicycleDbInitialize.init(app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider);
 ```
 
+### Expand below for the full `Startup.cs` file
 <details>
 
 <summary>Startup.cs</summary>
@@ -463,13 +400,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
 // next 5 lines added in lab #2
+using Steeltoe.CloudFoundry.Connector.MySql;
+using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 using BikeShop.API.Services;
 using BikeShop.API.Repositories;
 using BikeShop.API.Data;
-using Steeltoe.CloudFoundry.Connector.MySql;
-using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 
 namespace BikeShop.API
 {
@@ -521,24 +457,20 @@ namespace BikeShop.API
 
 ---
 
-## Update Program
+## Update the `Program` class
 
-Edit the `Program.cs` file.
-
-Add the following using directives:
-
+### 17. Add using directives
 ```c#
 using Steeltoe.Extensions.Configuration;
 using Steeltoe.Extensions.Configuration.CloudFoundry;
 ```
 
-Update the `CreateWebHostBuilder` method to add the following:
-
+### 18. Update the `CreateWebHostBuilder` method to add the following:
 ```c#
 .UseKestrel()
 .UseCloudFoundryHosting()
 .UseContentRoot(Directory.GetCurrentDirectory())
-.UseIISIntegration()
+.UseIISIntegration() // unnecessary is not using IIS
 .UseStartup<Startup>()
 .ConfigureAppConfiguration((builderContext, configBuilder) =>
 {
@@ -554,6 +486,8 @@ Update the `CreateWebHostBuilder` method to add the following:
     builder.AddConfiguration(context.Configuration.GetSection("Logging"));
 });
 ```
+
+### Expand below for the full `Program.cs` file
 
 <details>
 
@@ -610,10 +544,9 @@ namespace BikeShop.API
 
 ---
 
-## Update App Settings
+## Update the app settings files
 
-Add the following to the `appsettings.json` file:
-
+### 19. Add the following to the `appsettings.json` file
 ```json
 "mysql": {
     "client": {
@@ -622,6 +555,8 @@ Add the following to the `appsettings.json` file:
   },
   "multipleMySqlDatabases": false
 ```
+
+### Expand below for the full `appsettings.json` file
 
 <details>
 
@@ -648,18 +583,18 @@ Add the following to the `appsettings.json` file:
 
 ---
 
-## Update App Settings for Development
-
-Add the following to the `appsettings.Development.json` file:
-
+### 20. Add the following to the `appsettings.Development.json` file
+Connects to the local instance of MySQL e.g. when debugging.
 ```json
 "mysql": {
-"client": {
-    "sslmode": "none",
-    "ConnectionString": "Server=localhost;Database=BikeShop;Uid=root;Pwd=;sslmode=none;"
-}
+    "client": {
+        "sslmode": "none",
+        "ConnectionString": "Server=localhost;Database=BikeShop;Uid=root;Pwd=;sslmode=none;"
+    }
 }
 ```
+
+### Expand below for the full `appsettings.Development.json` file
 
 <details>
 
@@ -677,7 +612,7 @@ Add the following to the `appsettings.Development.json` file:
   "mysql": {
     "client": {
       "sslmode": "none",
-      "ConnectionString": "Server=localhost;Database=newdb;Uid=root;Pwd=;sslmode=none;"
+      "ConnectionString": "Server=localhost;Database=newdb;Uid=root;Pwd=Abc123!;sslmode=none;"
     }
   }
 }
@@ -687,32 +622,51 @@ Add the following to the `appsettings.Development.json` file:
 
 ---
 
-## Creating Database
+## Run it locally
 
-1. Make sure you are logged in the PCF foundation:
+### 20. Update the `launch.json` file to run new controller
+Edit the following section of the `~/BikeShop/.vscode/launch.json` file.
+```json
+"windows": {
+    "command": "cmd.exe",
+    "args": "/C start ${auto-detect-url}/api/values"
+},
+```
 
+Change only the `args` parameter as follows
+```json
+"windows": {
+    "command": "cmd.exe",
+    "args": "/C start ${auto-detect-url}/api/bicycle"
+},
+```
+
+### 21. Hit F5 to debug it locally
+You should see the entries created by the database initializer.
+
+
+## Provision a database on PCF
+
+### 22. Verify you are logged in
 ```bash
 cf target
 ```
 
-2. Should give you the following results:
-
+This should return in something like:
 ```bash
-api endpoint:   https://api.cf.magenic.net
-api version:    2.112.0
-user:           [YOUR USER NAME]@magenic.com
-org:            sandbox
-space:          [YOUR USER NAME]
+api endpoint:   https://api.run.pivotal.io
+api version:    2.141.0
+user:           jasonw@magenic.com
+org:            jasonw
+space:          development
 ```
 
-3. Check and see what services are available:
-
+### 23. Review available services
 ```bash
 cf marketplace
 ```
 
- 4. Should give you the following results:
-
+This should return in something like:
  ```bash
 service                       plans                       description
 app-autoscaler                standard                    Scales bound applications in response to load
@@ -726,71 +680,116 @@ p.rabbitmq                    single-node-3.7             RabbitMQ service to pr
 p.redis                       cache-small, cache-medium   Redis service to provide on-demand dedicated instances configured as a cache.
  ```
 
- 5. Create a MySQL instance: (note this take a few mins to complete)
-
+### 24. Create a MySQL service instance
+NOTE: This may take a few minutes to provision.
  ```bash
-cf create-service p.mysql db-micro BikeShopDB
+cf create-service p.mysql db-micro BikeShopDB-[YOUR INITIALS]
  ```
 
  Confirm that the service has been created:
-
  ```bash
  cf services
  ```
 
-You will see something like this:
-
+Eventually you will see the `create succeeded` message under `last operatiom`
 ```bash
-name         service   plan       bound apps   last operation
-BikeShopDB   p.mysql   db-micro                create succeeded
+name                         service   plan       bound apps   last operation
+BikeShopDB-[YOUR INITIALS]   p.mysql   db-micro                create succeeded
 ```
 
- 6. Bind BikeShop App to the BikeShopDB (note [YOUR USER NAME] is your user name)
+## Bind the new MySQL service instance to the app
 
-\* Be sure your service is done creating the instance, or the following command will fail
+### 25. Add the following lines to the bottom of the `manifest.yml` file:
+```yml
+  services:
+   - mysql-[YOUR INITIALS]
+```
+
+### Expand below for the full `manifest.yml` file
+
+<details>
+
+<summary>manifest.yml</summary>
+
+```yml
+---
+applications:
+-   name: BikeShop-API-[YOUR INITIALS]
+    buildpacks:
+    - dotnet_core_buildpack
+    memory: 128m
+    disk_quota: 256m
+    random-route: true
+    stack: cflinuxfs3
+    timeout: 180
+    services:
+    - mysql-[YOUR INITIALS]
+```
+
+</details>
+
+### You can also create service instance bindings from the command line
+This is not needed if you made the change above to the manifest.
+NOTE: Wait until the service instance is successfully created or the following command will fail.
 
 ```bash
 cf bind-service BikeShop-API-[YOUR USER NAME] BikeShopDB
 ```
 
----
+## Publish and test the app
 
-## Push BikeShop to PCF
-
-1. Change directories:
-
+### 26. Deploy the app onto PCF
 ```bash
-cd src/BikeShop.API/
+cf push -f src/BikeShop.API/manifest.yml
 ```
 
-2. Publish BikeShop.API
+NOTE: Wait for your app to deploy and start up
 
+### 27. Test it
+
+Get the route for the app.
 ```bash
-dotnet publish
+cf app BikeShop-API-[YOUR INITIALS]
 ```
 
-3. Push BikeShop.API
-
+Note: To see all of the apps in the Space:
 ```bash
-cf push
+cf apps
 ```
 
----
+The route will be listed next to the app.
+```bash
+name:              BikeShop-API-[YOUR INITIALS]
+requested state:   started
+routes:            bikeshop-api-[YOUR INITIALS]-sleepy-cassowary.cfapps.io
+last uploaded:     Sun 06 Oct 23:21:02 EDT 2019
+stack:             cflinuxfs3
+buildpacks:        dotnet-core
 
-## Testing BikeShop API
+type:            web
+instances:       1/1
+memory usage:    128M
+start command:   cd ${DEPS_DIR}/0/dotnet_publish && exec ./BikeShop.API --server.urls http://0.0.0.0:${PORT}
+     state     since                  cpu    memory      disk        details
+#0   running   2019-10-07T03:21:19Z   0.0%   0 of 128M   0 of 256M
+```
 
-Test the api in a web browser by navigating to the values controller (`https://bikeshop-api-[YOUR AD NAME].cf.magenic.net/api/bicycle/1`).
+Open a browser and navigat to the values controller (`https://bikeshop-api-[YOUR INITIALS].cf.magenic.net/api/bicycle`).
 
+You should see the same results as when run locally
 ```json
-{"id":1,"productName":"Schwin Mountian Bike","price":899.99,"description":"Schwin","image":"img"}
+[{"id":2,"productName":"Schwin Mountian Bike","price":899.99,"description":"Schwin","image":"img"},{"id":11,"productName":"Wonder Bike 2019","price":0.0,"description":"It's amazing!","image":""}]
 ```
-
----
 
 ## Recap
 
-So far we have continued from the previous lab. Created a database and bound it to our app. We added the code to create our database, add sample data and be able to pull data out of the database by calling the web api.
+In this lab we:
+ - Added the data-driven Bicycle controller and supporting classes
+ - Provisioned a MySQL service instance in PCF
+ - Bound the service instance to our app
+ - Updated our app and tested it locally
+ - Pushed our app to PCF to tested it
 
 ## Next Steps
 
-Next, we will see how to externalize configuration. Change to the Configuration branch to continue.
+Next, we will use SteelToe to easily externalize configuration.

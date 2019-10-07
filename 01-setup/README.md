@@ -284,4 +284,4 @@ So far we have:
 
 ## Next Steps
 
-Next, we will use connectors to access database resources.
+Next, we will use SteelToe Connectors to access a MySQL database.
