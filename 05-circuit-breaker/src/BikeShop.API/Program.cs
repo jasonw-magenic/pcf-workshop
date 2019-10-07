@@ -51,7 +51,7 @@ namespace BikeShop.API
                         .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                         .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                         .AddEnvironmentVariables()
-                        // .AddCloudFoundry()
+                        .AddCloudFoundry()
                         .AddConfigServer(env);
                 })
                 .ConfigureLogging((context, builder) =>

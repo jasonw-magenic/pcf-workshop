@@ -13,7 +13,8 @@ namespace BikeShop.API.Commands
         private readonly BicycleRepository _bicycleRepository;
         private readonly ILogger<GetAllBicyclesCommand> _logger;
 
-        public GetAllBicyclesCommand(IHystrixCommandOptions options, ILogger<GetAllBicyclesCommand> logger, BicycleRepository bicycleRepository) : base(options)
+        public GetAllBicyclesCommand(IHystrixCommandOptions options, ILogger<GetAllBicyclesCommand> logger,
+            BicycleRepository bicycleRepository) : base(options)
         {
             _bicycleRepository = bicycleRepository;
             _logger = logger;
@@ -27,7 +28,7 @@ namespace BikeShop.API.Commands
         protected override async Task<IEnumerable<Bicycle>> RunAsync()
         {
             _logger.LogInformation("GetAllBicyclesCommand.RunAsync()");
-            // await Task.Delay(30000);
+            // await Task.Delay(1500);
             return await _bicycleRepository.GetAllBicycles();
         }
 
