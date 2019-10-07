@@ -9,9 +9,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/BikeShopAPI/bin/Debug/netcoreapp2.2/BikeShopAPI.dll",
+            "program": "${workspaceFolder}/src/BikeShop.API/bin/Debug/netcoreapp2.2/BikeShop.API.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/BikeShopAPI",
+            "cwd": "${workspaceFolder}/src/BikeShop.API",
             "stopAtEntry": false,
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             // NOTE: The following entry SHOULD work but DOES NOT for a .NET Core project in C# as of 2019-09-15.
